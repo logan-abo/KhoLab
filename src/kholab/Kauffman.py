@@ -15,13 +15,15 @@ def union(parent, size, x, y):
     ry = find(parent, y)
 
     if rx == ry:
-        return
+        return 0
 
     if size[rx] < size[ry]:
         rx, ry = ry, rx
 
     parent[ry] = rx
     size[rx] += size[ry]
+
+    return 1
 
 
 def compute_kauffman_bracket():
@@ -46,6 +48,7 @@ def compute_kauffman_bracket():
         parent = list(range(2*N))
         size = [1] * (2*N)
 
+        components = 2*N
 
         # compute the all zeros crossing
         for k, c in enumerate(crossings):
@@ -53,16 +56,13 @@ def compute_kauffman_bracket():
             bit = (state >> k) & 1
 
             # First pair
-            union(parent, size, c[0], c[1 + 2*bit])
+            components -= union(parent, size, c[0], c[1 + 2*bit])
 
             # Second pair
-            union(parent, size, c[2 - bit], c[3 - bit])
+            components -= union(parent, size, c[2 - bit], c[3 - bit])
 
 
-        roots = set()
-        for j in range(2*N):
-            roots.add(find(parent, j))
-        num_loops = len(roots)
+        num_loops = components
 
         state_power = N - 2 * state.bit_count()
 
