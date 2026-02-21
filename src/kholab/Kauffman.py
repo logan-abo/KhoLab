@@ -76,15 +76,17 @@ def compute_kauffman_bracket():
         counts[(state_power, num_loops)] += 1
 
 
-    kauffman_bracket = LaurentPolynomial()
+    final_coeffs = defaultdict(int)
 
     for (power, loops), multiplicity in counts.items():
 
-        term = LaurentPolynomial({power: multiplicity})
-        term *= unknot_powers[loops - 1]
+        delta_poly = unknot_powers[loops - 1]
 
-        kauffman_bracket += term
+        for exp, coeff in delta_poly.terms.items():
+            final_coeffs[power + exp] += multiplicity * coeff
 
+
+    kauffman_bracket = LaurentPolynomial(dict(final_coeffs))
     print(kauffman_bracket)
 
 
