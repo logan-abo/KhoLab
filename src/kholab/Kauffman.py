@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from .LaurentPolynomial import LaurentPolynomial
 
 
@@ -33,7 +35,9 @@ def compute_kauffman_bracket():
     format = "{0:0"+str(2*N)+"b}"
 
     unknot = LaurentPolynomial({-2: -1, 2: -1})
-    kauffman_bracket = LaurentPolynomial()
+    unknot_powers = [unknot**i for i in range(2*N + 1)]
+
+    counts = defaultdict(int)
 
 
     for state in range(1 << N):
@@ -61,10 +65,18 @@ def compute_kauffman_bracket():
         num_loops = len(roots)
 
         state_power = N - 2 * state.bit_count()
-        state_poly = LaurentPolynomial({state_power: 1})
 
-        kauffman_bracket += state_poly * (unknot ** (num_loops-1))
+        counts[(state_power, num_loops)] += 1
 
+
+    kauffman_bracket = LaurentPolynomial()
+
+    for (power, loops), multiplicity in counts.items():
+
+        term = LaurentPolynomial({power: multiplicity})
+        term *= unknot_powers[loops - 1]
+
+        kauffman_bracket += term
 
     print(kauffman_bracket)
 
