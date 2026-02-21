@@ -34,12 +34,20 @@ def compute_kauffman_bracket():
 
     # Number of crossings
     N = len(crossings)
-    format = "{0:0"+str(2*N)+"b}"
+    print("Crossings:", N)
 
     unknot = LaurentPolynomial({-2: -1, 2: -1})
     unknot_powers = [unknot**i for i in range(2*N + 1)]
 
     counts = defaultdict(int)
+
+    resolution_pairs = []
+
+    for a,b,c,d in crossings:
+        resolution_pairs.append([
+            ((a,b),(c,d)),   # 0 resolution
+            ((a,d),(b,c))    # 1 resolution
+        ])
 
 
     for state in range(1 << N):
@@ -55,11 +63,10 @@ def compute_kauffman_bracket():
 
             bit = (state >> k) & 1
 
-            # First pair
-            components -= union(parent, size, c[0], c[1 + 2*bit])
+            pairs = resolution_pairs[k][bit]
 
-            # Second pair
-            components -= union(parent, size, c[2 - bit], c[3 - bit])
+            components -= union(parent, size, pairs[0][0], pairs[0][1])
+            components -= union(parent, size, pairs[1][0], pairs[1][1])
 
 
         num_loops = components
